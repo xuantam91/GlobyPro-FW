@@ -1,0 +1,17 @@
+{
+    "target": "esp32s3",
+    "builds": [
+        {
+            "name": "luxiaoban-xiaozhi-1.54tft",
+            "sdkconfig_append": [
+                "CONFIG_IDLE_DISPLAY_MODE_CLASSIC=y",
+                "CONFIG_IDLE_DISPLAY_MODE_WEATHER=n",
+                "CONFIG_ENABLE_IDLE_SCREEN=y",
+                "CONFIG_WEATHER_IDLE_DISPLAY_ENABLE=n",
+                "CONFIG_SR_WN_WN9_HITELLY_TTS=y",
+                "CONFIG_APP_PROJECT_VER_FROM_CONFIG=y",
+                "CONFIG_APP_PROJECT_VER=\"2.1.0\""
+            ]
+        }
+    ]
+}

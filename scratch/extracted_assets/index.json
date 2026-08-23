@@ -1,0 +1,109 @@
+{
+  "version": 1,
+  "chip_model": "esp32s3",
+  "hide_subtitle": false,
+  "display_config": {
+    "width": 240,
+    "height": 320,
+    "monochrome": false,
+    "color": "RGB565"
+  },
+  "srmodels": "srmodels.bin",
+  "text_font": "font_puhui_deepseek_20_4.bin",
+  "skin": {
+    "light": {
+      "text_color": "#000000",
+      "background_color": "#ffffff"
+    },
+    "dark": {
+      "text_color": "#ffffff",
+      "background_color": "#1f2937"
+    }
+  },
+  "emoji_collection": [
+    {
+      "name": "angry",
+      "file": "emoji_a7c584ce.png"
+    },
+    {
+      "name": "crying",
+      "file": "emoji_5f3dc42d.png"
+    },
+    {
+      "name": "delicious",
+      "file": "emoji_5ea87aac.png"
+    },
+    {
+      "name": "kissy",
+      "file": "emoji_5b4aa910.png"
+    },
+    {
+      "name": "confident",
+      "file": "emoji_58d3d7aa.png"
+    },
+    {
+      "name": "relaxed",
+      "file": "emoji_9d284b64.png"
+    },
+    {
+      "name": "sleepy",
+      "file": "emoji_7f5d61f4.png"
+    },
+    {
+      "name": "silly",
+      "file": "emoji_fcb16576.png"
+    },
+    {
+      "name": "confused",
+      "file": "emoji_c0f2d501.png"
+    },
+    {
+      "name": "cool",
+      "file": "emoji_2dd00a3c.png"
+    },
+    {
+      "name": "winking",
+      "file": "emoji_57adf124.png"
+    },
+    {
+      "name": "thinking",
+      "file": "emoji_995a30b8.png"
+    },
+    {
+      "name": "shocked",
+      "file": "emoji_5cd50071.png"
+    },
+    {
+      "name": "sad",
+      "file": "emoji_b47e80fb.png"
+    },
+    {
+      "name": "neutral",
+      "file": "emoji_9afd6e9c.png"
+    },
+    {
+      "name": "happy",
+      "file": "emoji_71e6b925.png"
+    },
+    {
+      "name": "laughing",
+      "file": "emoji_9806c13e.png"
+    },
+    {
+      "name": "funny",
+      "file": "emoji_9806c13e.png"
+    },
+    {
+      "name": "loving",
+      "file": "emoji_fc175b04.png"
+    },
+    {
+      "name": "embarrassed",
+      "file": "emoji_07c1836d.png"
+    },
+    {
+      "name": "surprised",
+      "file": "emoji_96e966ff.png"
+    }
+  ]
+}

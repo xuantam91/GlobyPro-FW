@@ -1,0 +1,109 @@
+{
+  "version": 1,
+  "chip_model": "esp32s3",
+  "hide_subtitle": false,
+  "display_config": {
+    "width": 240,
+    "height": 320,
+    "monochrome": false,
+    "color": "RGB565"
+  },
+  "srmodels": "srmodels.bin",
+  "text_font": "font_puhui_deepseek_20_4.bin",
+  "skin": {
+    "light": {
+      "text_color": "#000000",
+      "background_color": "#ffffff"
+    },
+    "dark": {
+      "text_color": "#ffffff",
+      "background_color": "#1f2937"
+    }
+  },
+  "emoji_collection": [
+    {
+      "name": "neutral",
+      "file": "emoji_d74b416d.png"
+    },
+    {
+      "name": "relaxed",
+      "file": "emoji_43288dfe.png"
+    },
+    {
+      "name": "sleepy",
+      "file": "emoji_434ffa8e.png"
+    },
+    {
+      "name": "kissy",
+      "file": "emoji_5d547b92.png"
+    },
+    {
+      "name": "delicious",
+      "file": "emoji_44de844f.png"
+    },
+    {
+      "name": "confident",
+      "file": "emoji_b027bc2e.png"
+    },
+    {
+      "name": "silly",
+      "file": "emoji_5da2bb6d.png"
+    },
+    {
+      "name": "confused",
+      "file": "emoji_d3c3a626.png"
+    },
+    {
+      "name": "cool",
+      "file": "emoji_637165bb.png"
+    },
+    {
+      "name": "crying",
+      "file": "emoji_fd25b1fc.png"
+    },
+    {
+      "name": "angry",
+      "file": "emoji_296c0134.png"
+    },
+    {
+      "name": "thinking",
+      "file": "emoji_325fe1a9.png"
+    },
+    {
+      "name": "winking",
+      "file": "emoji_807d6332.png"
+    },
+    {
+      "name": "sad",
+      "file": "emoji_94ef6254.png"
+    },
+    {
+      "name": "shocked",
+      "file": "emoji_932b1734.png"
+    },
+    {
+      "name": "surprised",
+      "file": "emoji_cfe96e62.png"
+    },
+    {
+      "name": "embarrassed",
+      "file": "emoji_1a306670.png"
+    },
+    {
+      "name": "loving",
+      "file": "emoji_ed131fbd.png"
+    },
+    {
+      "name": "happy",
+      "file": "emoji_f8ec5dfb.png"
+    },
+    {
+      "name": "laughing",
+      "file": "emoji_31661d56.png"
+    },
+    {
+      "name": "funny",
+      "file": "emoji_31661d56.png"
+    }
+  ]
+}
