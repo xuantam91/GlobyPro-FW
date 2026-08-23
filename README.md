@@ -1,324 +1,357 @@
-# Xiaozhi ESP32 - Phiên bản Việt Nam
+# GlobyPro Firmware — Jiuchuan-S3 (V1 & V2)
 
-<div style="display: flex; justify-content: space-between;>
-
-**Chatbot AI Giọng Nói Tiếng Việt Trên Nền Tảng ESP32**
-  <a href="docs/images/01_avata.jpg" target="_blank" title="Xingzhi Cube 1.54tft Board">
-    <img src="docs/images/01_avata.jpg" width="480" />
-  </a>
-</div>
+Firmware AI Voice Assistant cho loa thông minh **Globy Pro** chạy trên bo mạch **Jiuchuan-S3**, nền tảng ESP32-S3 với flash 16 MB.
 
 ---
 
-## 🌐 Cộng Đồng & Hỗ Trợ
+## 📋 Mục Lục
 
-Tham gia cộng đồng Xiaozhi AI-IoT Vietnam để nhận hỗ trợ, chia sẻ kinh nghiệm và cập nhật tính năng mới:
-
-| Nền tảng | Link | Mô tả |
-|----------|------|-------|
-| 📱 **Website** | [xiaozhi-ai-iot.vn](https://xiaozhi-ai-iot.vn/#) | XiaoZhi AI IoT Việt Nam |
-| 📱 **Zalo** | [Tham gia nhóm](https://zalo.me/g/qlvffa015) | Nhóm hỗ trợ người mới bắt đầu |
-| 📱 **Zalo** | [Tham gia nhóm](https://zalo.me/g/fsyuiz890) | Nhóm hỗ trợ chính thức |
-| 📘 **Facebook** | [Fanpage](https://www.facebook.com/XiaozhiAI.IoTVietnam/) | Xiaozhi AI-IoT Vietnam |
-| 📘 **Facebook** | [Tham gia nhóm](https://www.facebook.com/groups/2655614131443031) | Xiaozhi AI-IoT Vietnam 🇻🇳 | Cộng đồng Chia Sẻ |
-| 🎥 **YouTube** | [Xem hướng dẫn](https://youtu.be/g7Lh-LpxElU) | Video build chi tiết |
-| 🔧 **Web Flasher** | [Nạp ROM Online](https://tienhuyiot.github.io/esp_web_flasher/) | Nạp firmware không cần cài đặt |
+- [Tổng Quan Phần Cứng](#-tổng-quan-phần-cứng)
+- [Tính Năng](#-tính-năng)
+- [Yêu Cầu Môi Trường](#-yêu-cầu-môi-trường)
+- [Cấu Hình Dự Án](#-cấu-hình-dự-án)
+- [Hướng Dẫn Build Firmware](#-hướng-dẫn-build-firmware)
+- [Nạp Firmware](#-nạp-firmware)
+- [Vận Hành Thiết Bị](#-vận-hành-thiết-bị)
+- [Cấu Trúc Thư Mục](#-cấu-trúc-thư-mục)
+- [Giấy Phép](#-giấy-phép)
 
 ---
 
-## 📖 Giới Thiệu
+## 🔧 Tổng Quan Phần Cứng
 
-**Xiaozhi ESP32 Vietnam** là phiên bản tùy chỉnh của dự án Xiaozhi AI Chatbot, được phát triển đặc biệt cho cộng đồng Việt Nam với nhiều tính năng bổ sung và tối ưu hóa cho thị trường Việt.
+### So Sánh V1 và V2
 
-Dự án sử dụng chip ESP32 kết hợp với các mô hình AI lớn (Qwen, DeepSeek) để tạo ra một chatbot tương tác bằng giọng nói thông minh, hỗ trợ điều khiển IoT thông qua giao thức MCP.
+| Thông số | Jiuchuan-S3 V1 | Jiuchuan-S3 V2 |
+|----------|:--------------:|:--------------:|
+| **SoC** | ESP32-S3 | ESP32-S3 |
+| **Flash** | 16 MB | 16 MB |
+| **Màn hình** | LCD 1.69" 240×280 (ST7789) | LCD 1.69" 240×280 (ST7789) |
+| **Audio Codec** | ES8311 | ES8311 |
+| **Loa** | Mono | Mono |
+| **Micro** | INMP441 (I2S) | INMP441 (I2S) |
+| **Phân vùng App** | 2 × 6 MB (OTA A/B) | 2 × ~5 MB (OTA A/B) |
+| **Phân vùng Assets** | Không có (dùng model SPIFFS) | 6 MB (SPIFFS `0xa00000`) |
+| **Thẻ nhớ SD** | Hỗ trợ (SPI) | Hỗ trợ (SPI) |
 
-### 🎯 Dự Án Gốc
+> **Lưu ý:** Sự khác biệt chính giữa V1 và V2 nằm ở **bảng phân vùng flash** (partition table) và **một số chân GPIO**. Mã nguồn ứng dụng là chung, được phân nhánh bằng cờ biên dịch `CONFIG_JIUCHUAN_S3_V1` / `CONFIG_JIUCHUAN_S3_V2`.
 
-Dự án này được fork và phát triển từ [xiaozhi-esp32](https://github.com/78/xiaozhi-esp32) của tác giả Xiage.
+### Bảng Phân Vùng
 
----
+**V1** (`partitions/v1/16m.csv`):
+```
+nvs       0x9000    16 KB
+otadata   0xd000     8 KB
+phy_init  0xf000     4 KB
+model     0x10000  960 KB   (SPIFFS - wake word model)
+ota_0     0x100000   6 MB
+ota_1     0x700000   6 MB
+```
 
-## ✨ Tính Năng Đã Phát Triển
-
-### 🎵 Giải Trí & Âm Nhạc
-
-#### Nghe Nhạc Việt Nam
-- Phát nhạc từ server music với khả năng cấu hình linh hoạt
-- **Không cần build lại ROM** khi thay đổi link server music
-- Hỗ trợ streaming chất lượng cao
-
-#### Radio Việt Nam & Quốc Tế
-- 📻 Radio VOV (Đài Tiếng nói Việt Nam)
-- 🌍 Kênh radio tiếng Anh
-- Thêm nhiều kênh radio khác
-
-#### Hiển Thị Phổ Nhạc
-- 📊 Hiển thị phổ âm thanh trực quan trên màn hình **LCD**
-- 📊 Hiển thị phổ âm thanh trên màn hình **OLED**
-- Giao diện trực quan, đẹp mắt khi phát nhạc và Radio
-
-### 🔄 Cập Nhật & Triển Khai
-
-#### Hệ Thống OTA online
-- Cập nhật firmware qua mạng (Over-The-Air)
-- Link OTA: [https://ota-server.xiaozhi-ota.workers.dev/ota/](https://ota-server.xiaozhi-ota.workers.dev/ota/)
-- Không cần kết nối dây, cập nhật từ xa
-
-#### Hệ Thống OTA WebServer
-- Cập nhật firmware qua Web Server
-- Truy cập link bằng IP kết nối mang: Ví dụ 102.168.1.10/ota
-<div style="display: flex; justify-content: space-between;">
-  <a href="docs/images/02_Xingzhi_Cube.jpg" target="_blank" title="Xingzhi Cube 1.54tft Board">
-    <img src="docs/images/04_ota_server.png" width="480" />
-  </a>
-</div>
-
-#### Nạp ROM Dễ Dàng
-- Nạp ROM trực tiếp qua trình duyệt web
-- Link Web Flasher: [https://tienhuyiot.github.io/esp_web_flasher/](https://tienhuyiot.github.io/esp_web_flasher/)
-- Không cần cài đặt driver hay công cụ phức tạp
-
-### 🤖 Hỗ Trợ Phần Cứng:
-
-#### Xingzhi Cube:
-<div style="display: flex; justify-content: space-between;">
-  <a href="docs/images/02_Xingzhi_Cube.jpg" target="_blank" title="Xingzhi Cube 1.54tft Board">
-    <img src="docs/images/02_Xingzhi_Cube.jpg" width="480" />
-  </a>
-</div>
-
-#### Tự lắp theo sơ đồ kết nối: 
-<div style="display: flex; justify-content: space-between;">
-  <a href="docs/images/03_diy_01.jpg" target="_blank" title="Sơ đồ kết nối mạch ĐEN">
-    <img src="docs/images/03_diy_01.jpg" width="480" />
-  </a>
-  <a href="docs/images/03_diy_02.jpg" target="_blank" title="Sơ đồ kết nối mạch TÍM">
-    <img src="docs/images/03_diy_02.jpg" width="480" />
-  </a>
-  <a href="docs/images/03_diy_03.jpg" target="_blank" title="Sơ đồ kết nối mạch TÍM">
-    <img src="docs/images/03_diy_03.jpg" width="480" />
-  </a>
-  <a href="docs/images/03_diy_04.jpg" target="_blank" title="Sơ đồ kết nối mạch TÍM">
-    <img src="docs/images/03_diy_04.jpg" width="480" />
-  </a>
-</div>
-
-#### Otto Robot Board
-- Hỗ trợ new partition để build firmware cho board Otto Robot
-- Tích hợp điều khiển động cơ servo
-- Phù hợp cho các dự án robot giáo dục
-
----
-
-## 🚀 Tính Năng Đang Phát Triển
-
-Các tính năng sau đây đang được phát triển tích cực và sẽ được phát hành trong các phiên bản tương lai:
-
-### 🎵 Đa Phương Tiện Nâng Cao
-
-| Tính năng | Mô tả | Trạng thái |
-|-----------|-------|------------|
-| 💾 **Play music from SD card** | Phát nhạc trực tiếp từ thẻ nhớ SD | ✅ https://github.com/NTC95-Xiaozhi-Esp32/Xiaozhi_NTC_SDCARD |
-| 🎬 **Play video from SD** | Phát video từ thẻ nhớ SD trên màn hình LCD | 🔨 Đang phát triển |
-| 🔊 **Phát nhạc qua Bluetooth** | Kết nối và phát nhạc qua loa Bluetooth | 🔨 Đang phát triển |
-
-### 💰 Tích Hợp Thanh Toán & Tiện Ích Tin Tức
-
-| Tính năng | Mô tả | Trạng thái |
-|-----------|-------|------------|
-| 💳 **QR Code Ngân Hàng** | Hiển thị mã QR thanh toán ngân hàng Việt Nam | 📋 Kế hoạch |
-| 📈 **Giá Vàng** | Cập nhật giá vàng trong nước theo thời gian thực | 📋 Kế hoạch |
-| 📊 **Giá Chứng Khoán** | Hiển thị giá cổ phiếu VN-Index, HNX-Index | 📋 Kế hoạch |
-| 📰 **Tin Tức Tài Chính** | Cập nhật tin tức kinh tế Việt Nam | 📋 Kế hoạch |
-
-### 📱 Kết Nối Di Động
-
-| Tính năng | Mô tả | Trạng thái |
-|-----------|-------|------------|
-| 🍎 **ANCS Bluetooth iPhone** | Kết nối iPhone nhận thông báo chỉ đường, tin nhắn | 🔨 Đang phát triển |
-| 📲 **Thông Báo Cuộc Gọi** | Hiển thị thông tin người gọi từ điện thoại | 📋 Kế hoạch |
-
-### ⚙️ Hệ Thống & Cấu Hình
-
-| Tính năng | Mô tả | Trạng thái |
-|-----------|-------|------------|
-| 🌐 **OTA qua Webserver Nhúng** | Cập nhật firmware qua webserver tích hợp trong chip | ✅ Đã phát triển |
-| 🔧 **Web Server Cấu Hình GPIO** | Giao diện web để cấu hình chân GPIO | 🔨 Đang phát triển |
-| 🎚️ **Tăng Mic Gain với UI** | Điều chỉnh độ nhạy microphone qua giao diện | 🔨 Đang phát triển |
-| 🔄 **Update V1 lên V2** | Hỗ trợ nâng cấp từ phiên bản V1 lên V2 | 🔨 Đang phát triển |
-| 🖥️ **Hỗ Trợ Màn Hình Mới** | Build firmware cho các loại màn hình mới | ✅ Đã phát triển |
-
-### ⏰ Tiện Ích Thông Minh
-
-| Tính năng | Mô tả | Trạng thái |
-| 🌦️ **Màn hình chờ thời tiết** | Hiển thị thông tin thời tiết màn hình chờ | ✅ Đã phát triển |
-| ⏰ **Hẹn Giờ Báo Thức** | Thiết lập và quản lý nhiều báo thức | 🔨 Đang phát triển |
-| 🎙️ **Chủ Động Wakeup & thông báo** | Tự động kích hoạt và gửi văn bản theo lịch | 📋 Kế hoạch |
-
-### 🏭 Tự Động Hóa Công Nghiệp
-
-| Tính năng | Mô tả | Trạng thái |
-|-----------|-------|------------|
-| 🏭 **ModBus RTU** | Giao thức ModBus RTU để điều khiển thiết bị công nghiệp | 📋 Kế hoạch |
-| 🌐 **ModBus TCP/IP** | Giao thức ModBus TCP/IP qua mạng Ethernet/WiFi | 📋 Kế hoạch |
-
-**Chú thích trạng thái:**
-- 🔨 Đang phát triển: Đang được code và test
-- 📋 Kế hoạch: Đã lên kế hoạch, chưa bắt đầu phát triển
-
----
-
-## 🎯 Tính Năng Cốt Lõi (Từ Dự Án Gốc)
-
-### Kết Nối & Mạng
-- ✅ Wi-Fi
-- ✅ ML307 Cat.1 4G
-- ✅ Websocket hoặc MQTT+UDP
-- ✅ OPUS audio codec
-
-### AI & Giọng Nói
-- ✅ Wake word offline với [ESP-SR](https://github.com/espressif/esp-sr)
-- ✅ ASR + LLM + TTS streaming
-- ✅ Nhận dạng giọng nói với [3D Speaker](https://github.com/modelscope/3D-Speaker)
-- ✅ Đa ngôn ngữ (Tiếng Trung, Tiếng Anh, Tiếng Nhật)
-
-### Hiển Thị & Phần Cứng
-- ✅ Màn hình OLED / LCD
-- ✅ Hiển thị biểu cảm
-- ✅ Quản lý pin
-- ✅ ESP32-C3, ESP32-S3, ESP32-P4
-
-### Điều Khiển IoT
-- ✅ MCP phía thiết bị (âm lượng, LED, motor, GPIO)
-- ✅ MCP đám mây (nhà thông minh, desktop, email)
-- ✅ Tùy chỉnh wake word, font, biểu cảm
-
----
-
-## 🛠️ Bắt Đầu Nhanh
-
-### Cho Người Dùng Cuối
-
-1. **Nạp Firmware Online**
-   - Truy cập: [https://tienhuyiot.github.io/esp_web_flasher/](https://tienhuyiot.github.io/esp_web_flasher/)
-   - Kết nối ESP32 qua USB
-   - Chọn firmware và nhấn Flash
-
-2. **Cấu Hình WiFi**
-   - Bật thiết bị
-   - Kết nối vào WiFi của ESP32
-   - Cấu hình WiFi nhà bạn
-
-3. **Sử Dụng**
-   - Nói "Sophia" để đánh thức
-   - Bắt đầu trò chuyện
-
-### Cho Nhà Phát Triển
-
-#### Yêu Cầu
-- **IDE**: VSCode hoặc Cursor hoặc [antigravity](https://antigravity.google/)
-- **Plugin**: ESP-IDF v5.4+
-- **Hệ điều hành**: Linux (khuyến nghị) hoặc Windows
-- **Code Style**: Google C++ Style Guide
-
-#### Build Từ Source
-
-```bash
-# Clone repository
-git clone https://github.com/TienHuyIoT/xiaozhi-esp32_vietnam.git
-cd xiaozhi-esp32_vietnam
-
-# Cài đặt ESP-IDF dependencies
-# (Theo hướng dẫn của ESP-IDF)
-
-# Lần đầu cấu hình nên chạy các lệnh sau
-idf.py fullclean
-idf.py set-target esp32s3
-idf.py menuconfig
-
-# Build
-idf.py build
-
-# Flash
-idf.py -p COM_PORT flash monitor
-
-# Meger bin
-idf.py merge-bin
+**V2** (`partitions/v2/16m.csv`):
+```
+nvs       0x9000    16 KB
+otadata   0xd000     8 KB
+phy_init  0xf000     4 KB
+ota_0     0x20000  ~5 MB
+ota_1     0x510000 ~5 MB
+assets    0xa00000   6 MB   (SPIFFS - emoji & hình ảnh)
 ```
 
 ---
 
-## 📚 Tài Liệu
+## ✨ Tính Năng
 
-### Tài Liệu Người Dùng
-- 🎥 [Video Hướng Dẫn Build](https://youtu.be/g7Lh-LpxElU)
-- 📖 [Hướng Dẫn Nạp Firmware](https://ccnphfhqs21z.feishu.cn/wiki/Zpz4wXBtdimBrLk25WdcXzxcnNS)
+### Giao Diện Màn Hình Chờ (Idle Screen)
+- Đồng hồ thời gian thực (giờ:phút:giây) với hiệu ứng lật số
+- Hiển thị Thứ trong tuần và Ngày/Tháng/Năm qua chip màu nổi bật
+- Lời chào thông minh thay đổi theo thời điểm trong ngày
+- Biểu tượng Wi-Fi và Pin trên thanh trạng thái
+- Tự động hiển thị sau 10 giây không hoạt động
 
-### Tài Liệu Kỹ Thuật
-- [Hướng dẫn bo mạch tùy chỉnh](docs/custom-board.md)
-- [Giao thức MCP - Hướng dẫn sử dụng](docs/mcp-usage.md)
-- [Giao thức MCP - Quy trình tương tác](docs/mcp-protocol.md)
-- [Tài liệu MQTT + UDP](docs/mqtt-udp.md)
-- [Tài liệu WebSocket](docs/websocket.md)
+### Hệ Thống Theme Màu
+4 theme màu có thể chuyển đổi trực tiếp trên thiết bị:
+
+| Theme | Tên hiển thị | Màu nền | Màu chip Thứ | Màu chip Ngày |
+|-------|-------------|---------|--------------|---------------|
+| 🌸 **Pink** | Bunny Nose | Hồng pastel `#FFD6E0` | Hồng đậm `#F06292` | Xanh da trời `#4FC3F7` |
+| 🐻 **Orange** | Tiger Cub | Be ấm `#F5E6D3` | Cam đất `#E8985A` | Xanh lá nhạt `#81C784` |
+| 🌊 **BluePastel** | Ocean Dream | Xanh pastel `#C8DFF0` | Xanh đậm `#3A6A8F` | Hồng dịu `#EA9CA3` |
+| 🌻 **Yellow** | Sunny Day | Vàng mật ong `#F0DCA0` | Vàng cát `#A6833D` | Xanh mint `#71C5A1` |
+
+### Menu Chính (6 mục)
+Điều hướng bằng nút vật lý trên thiết bị:
+
+| Mục | Chức năng |
+|-----|-----------|
+| 🤖 Trò chuyện AI | Kích hoạt trợ lý giọng nói |
+| 🎵 Nhạc SD | Phát nhạc từ thẻ nhớ SD |
+| 🎶 Nhạc Online | Phát nhạc trực tuyến |
+| 📻 Radio | Nghe radio VOV & quốc tế |
+| ⏰ Báo thức | Hẹn giờ báo thức |
+| ⚙️ Cài đặt | Wi-Fi, Theme, Âm lượng, Độ sáng, Thông tin |
+
+### Các Menu Con Cài Đặt
+- **Wi-Fi:** Quét và chọn mạng Wi-Fi, hỗ trợ phân trang 5 dòng/trang
+- **Theme:** Chọn 1 trong 4 theme màu, lưu vào NVS
+- **Volume:** Thanh trượt chỉnh âm lượng loa (0–100%)
+- **Brightness:** Thanh trượt chỉnh độ sáng màn hình (10–100%)
+- **About:** Hiển thị phiên bản FW, địa chỉ MAC, IP, dung lượng SD
+
+### Giá Trị Mặc Định Khi Xuất Xưởng
+| Thông số | Giá trị |
+|----------|---------|
+| Âm lượng loa | **60%** (raw 48/80) |
+| Độ sáng màn hình | **70%** |
+| Theme mặc định | Cấu hình qua biến build `DEFAULT_THEME_VAL` |
+
+### Tính Năng Khác
+- **OTA (Over-The-Air):** Cập nhật firmware qua mạng hoặc Web Server nội bộ (`http://<IP>/ota`)
+- **Wake Word Offline:** Nhận diện từ khoá đánh thức bằng ESP-SR
+- **ASR + LLM + TTS Streaming:** Nhận dạng giọng nói → Xử lý AI → Phản hồi bằng giọng nói
+- **MCP IoT:** Điều khiển thiết bị IoT qua giao thức MCP
+- **Phổ âm thanh:** Hiển thị phổ nhạc trực quan khi phát nhạc/radio
 
 ---
 
-## 🤝 Đóng Góp
+## 💻 Yêu Cầu Môi Trường
 
-Chúng tôi rất hoan nghênh mọi đóng góp! Vui lòng:
+| Thành phần | Phiên bản |
+|------------|-----------|
+| **ESP-IDF** | v5.5.1 trở lên |
+| **Python** | 3.9+ |
+| **Hệ điều hành** | macOS / Linux / Windows |
+| **IDE (tùy chọn)** | VSCode + ESP-IDF Extension, Cursor, hoặc Antigravity |
 
-1. Fork repository này
-2. Tạo branch mới (`git checkout -b feature/TenTinhNang`)
-3. Commit thay đổi (`git commit -m 'Thêm tính năng mới'`)
-4. Push lên branch (`git push origin feature/TenTinhNang`)
-5. Tạo Pull Request
+### Cài Đặt ESP-IDF
 
-### Quy Tắc Đóng Góp
-- Tuân thủ Google C++ Style Guide
-- Viết commit message rõ ràng bằng tiếng Việt hoặc tiếng Anh
-- Test kỹ trước khi tạo PR
+```bash
+# Tải ESP-IDF v5.5.1
+mkdir -p ~/esp && cd ~/esp
+git clone -b v5.5.1 --recursive https://github.com/espressif/esp-idf.git esp-idf-5.5.1
+cd esp-idf-5.5.1
+./install.sh esp32s3
+
+# Kích hoạt môi trường (chạy mỗi khi mở terminal mới)
+source ~/esp-idf-5.5.1/export.sh
+```
+
+---
+
+## ⚙️ Cấu Hình Dự Án
+
+### Biến Biên Dịch CMake
+
+Các biến được truyền qua tham số `-D` khi gọi `idf.py build`:
+
+| Biến | Mô tả | Giá trị |
+|------|--------|---------|
+| `SDKCONFIG` | File cấu hình sdkconfig | `sdkconfig.jiuchuan` (V1) hoặc `sdkconfig.jiuchuan_v2` (V2) |
+| `DEFAULT_THEME_VAL` | Theme mặc định khi khởi động lần đầu | `0` = Pink/Rose, `1` = Orange/Beige, `2` = BluePastel, `3` = Yellow |
+| `JIUCHUAN_DEFAULT_LCD_DRIVER` | Driver LCD mặc định | `2` (mặc định) |
+
+### File SDKConfig
+
+| File | Mô tả |
+|------|--------|
+| `sdkconfig.jiuchuan` | Cấu hình cho bo V1 (`CONFIG_JIUCHUAN_S3_V1=y`) |
+| `sdkconfig.jiuchuan_v2` | Cấu hình cho bo V2 (`CONFIG_JIUCHUAN_S3_V2=y`) |
+
+### File Asset (chỉ dành cho V2)
+
+Các file asset emoji/hình ảnh nằm trong thư mục `assets_bin/`, được nạp vào phân vùng `assets` tại địa chỉ `0xa00000`:
+
+| File | Mô tả |
+|------|--------|
+| `Assets-Rose-HiTelly.bin` | Bộ emoji tone hồng |
+| `Assets-Beige-HiTelly.bin` | Bộ emoji tone be |
+| `Assets-Purple-HiTelly.bin` | Bộ emoji tone tím |
+
+---
+
+## 🚀 Hướng Dẫn Build Firmware
+
+### Build Đơn Lẻ (1 phiên bản)
+
+```bash
+# Kích hoạt ESP-IDF
+source ~/esp-idf-5.5.1/export.sh
+
+# === Build cho V1 với theme Rose ===
+idf.py -B build_jiuchuan \
+       -D SDKCONFIG=sdkconfig.jiuchuan \
+       -D DEFAULT_THEME_VAL=0 \
+       -D JIUCHUAN_DEFAULT_LCD_DRIVER=2 \
+       build
+
+# === Build cho V2 với theme Beige ===
+idf.py -B build_jiuchuan_v2 \
+       -D SDKCONFIG=sdkconfig.jiuchuan_v2 \
+       -D DEFAULT_THEME_VAL=1 \
+       -D JIUCHUAN_DEFAULT_LCD_DRIVER=2 \
+       build
+```
+
+### Build Đồng Loạt (Tất cả phiên bản chính thức)
+
+Script `build_official.sh` tự động biên dịch 4 phiên bản và xuất file OTA + Full flash vào thư mục `releases/`:
+
+```bash
+source ~/esp-idf-5.5.1/export.sh
+./build_official.sh
+```
+
+**Kết quả đầu ra:**
+
+| File | Board | Asset | Theme mặc định |
+|------|-------|-------|-----------------|
+| `Jiuchuan-2.1.6-opt-V1-Rose` | V1 | Rose | Pink (0) |
+| `Jiuchuan-2.1.6-opt-V1-Beige` | V1 | Beige | Orange (1) |
+| `Jiuchuan-V2-2.1.6-opt-V2-Rose` | V2 | Rose | Pink (0) |
+| `Jiuchuan-V2-2.1.6-opt-V2-Purple` | V2 | Purple | Pink (0) |
+
+Mỗi phiên bản tạo ra 2 file:
+- `*-OTA.bin` — Chỉ chứa phần ứng dụng, dùng để cập nhật OTA
+- `*.bin` — Full flash (bootloader + partition + app + assets), dùng để nạp mới hoàn toàn
+
+### Tuỳ Chỉnh Script Build
+
+Để thêm/sửa phiên bản, chỉnh sửa file `build_official.sh`, mỗi dòng gọi hàm `build_release` với 4 tham số:
+
+```bash
+build_release "<board>" <theme_val> "<asset_file>" "<output_name>"
+
+# Ví dụ: Thêm bản V2 Beige
+build_release "jiuchuan_v2" 1 "assets_bin/Assets-Beige-HiTelly.bin" "Jiuchuan-V2-2.1.6-opt-V2-Beige"
+```
+
+---
+
+## 📥 Nạp Firmware
+
+### Nạp Full Flash (Lần đầu / Xoá sạch)
+
+```bash
+# Nạp trực tiếp file full .bin đã merge
+python3 -m esptool --chip esp32s3 \
+  -p /dev/cu.usbmodem101 \
+  -b 460800 \
+  --before default_reset --after hard_reset \
+  write_flash --flash_mode dio --flash_size 16MB --flash_freq 80m \
+  0x0 releases/Jiuchuan-2.1.6-opt-V1-Rose.bin
+```
+
+### Nạp Từng Phân Vùng (V2)
+
+```bash
+python3 -m esptool --chip esp32s3 \
+  -p /dev/cu.usbmodem101 \
+  -b 460800 \
+  --before default_reset --after hard_reset \
+  write_flash --flash_mode dio --flash_size 16MB --flash_freq 80m \
+  0x0       build_jiuchuan_v2/bootloader/bootloader.bin \
+  0x8000    build_jiuchuan_v2/partition_table/partition-table.bin \
+  0xd000    build_jiuchuan_v2/ota_data_initial.bin \
+  0x20000   build_jiuchuan_v2/xiaozhi_vn.bin \
+  0xa00000  assets_bin/Assets-Rose-HiTelly.bin
+```
+
+### Cập Nhật OTA Qua Web Server
+
+1. Kết nối thiết bị vào mạng Wi-Fi
+2. Mở trình duyệt, truy cập `http://<IP_thiết_bị>/ota`
+3. Chọn file `*-OTA.bin` và tải lên
+
+> **Lưu ý:** Trên macOS, cổng USB thường là `/dev/cu.usbmodem101` hoặc `/dev/cu.usbmodem1101`. Kiểm tra bằng lệnh `ls /dev/cu.usb*`.
+
+---
+
+## 🎮 Vận Hành Thiết Bị
+
+### Nút Bấm
+
+| Thao tác | Chức năng |
+|----------|-----------|
+| **Nhấn ngắn** nút chính | Bật/Tắt menu chính |
+| **Xoay** encoder | Điều hướng lên/xuống trong menu |
+| **Nhấn** encoder | Chọn mục menu / Xác nhận |
+| **Nói** từ khoá đánh thức | Kích hoạt trợ lý AI giọng nói |
+
+### Luồng Hoạt Động
+
+```
+Khởi động → Kết nối Wi-Fi → Đồng bộ thời gian NTP
+                                    ↓
+                           Màn hình chờ (Idle Screen)
+                           Hiển thị đồng hồ + theme
+                                    ↓
+                    ┌───── Nhấn nút ──────┐
+                    ↓                     ↓
+              Menu Chính            Nói wake word
+              (6 mục)              → Trò chuyện AI
+                    ↓
+         Chọn mục → Thực thi
+         (Nhạc, Radio, Cài đặt...)
+```
+
+### Đổi Theme Màu
+
+1. Mở Menu Chính → **⚙️ Cài đặt**
+2. Chọn **🎨 Theme**
+3. Xoay encoder chọn theme → Nhấn xác nhận
+4. Theme được lưu vào NVS, giữ nguyên sau khi khởi động lại
+
+### Cấu Hình Wi-Fi
+
+1. Mở Menu Chính → **⚙️ Cài đặt**
+2. Chọn **📶 Wi-Fi**
+3. Thiết bị quét mạng xung quanh, hiển thị danh sách phân trang (5 mạng/trang)
+4. Chọn mạng → Nhập mật khẩu qua ứng dụng điện thoại hoặc cấu hình âm thanh
+
+---
+
+## 📁 Cấu Trúc Thư Mục
+
+```
+GlobyPro-FW/
+├── main/                          # Mã nguồn chính
+│   ├── application.cc/h           # Logic ứng dụng chính, xử lý intent AI
+│   ├── audio/                     # Audio codec (ES8311), wake word, xử lý âm thanh
+│   │   ├── audio_codec.h          # Cấu hình codec, âm lượng mặc định
+│   │   └── ...
+│   ├── boards/
+│   │   ├── jiuchuan-s3/           # Board-specific: GPIO, I2C, SPI cho Jiuchuan
+│   │   └── common/                # Backlight, Wi-Fi, Power Save, Sleep Timer
+│   ├── features/
+│   │   ├── Idle_Screen/           # Giao diện màn hình chờ, theme, menu
+│   │   │   ├── idle_screen.cc     # Logic UI, theme palette, menu hệ thống
+│   │   │   └── idle_screen.h      # Enum Theme, MainMenuItem
+│   │   └── alarm_clock/           # Tính năng báo thức
+│   └── ...
+├── partitions/
+│   ├── v1/16m.csv                 # Bảng phân vùng V1 (không có assets)
+│   └── v2/16m.csv                 # Bảng phân vùng V2 (có assets 6 MB)
+├── assets_bin/                    # File nhị phân asset emoji (Rose, Beige, Purple)
+├── releases/                      # Thư mục chứa file firmware đã build
+├── scripts/                       # Công cụ hỗ trợ (gen asset, convert ảnh/âm thanh)
+├── build_official.sh              # Script build đồng loạt 4 phiên bản chính thức
+├── sdkconfig.jiuchuan             # SDKConfig cho board V1
+├── sdkconfig.jiuchuan_v2          # SDKConfig cho board V2
+└── CMakeLists.txt                 # Cấu hình CMake, biến DEFAULT_THEME_VAL
+```
 
 ---
 
 ## 📄 Giấy Phép
 
-Dự án này được phát hành dưới giấy phép **MIT License**, kế thừa từ dự án gốc xiaozhi-esp32.
+Dự án được phát hành dưới giấy phép **MIT License**.
 
-Bạn có thể:
-- ✅ Sử dụng miễn phí cho mục đích cá nhân
-- ✅ Sử dụng cho mục đích thương mại
-- ✅ Chỉnh sửa và phân phối lại
-
----
-
-## 🙏 Cảm Ơn
-
-### Dự Án Gốc
-- [xiaozhi-esp32](https://github.com/78/xiaozhi-esp32) - Dự án gốc bởi Xiage
-
-### Thư Viện & Framework
-- [ESP-IDF](https://github.com/espressif/esp-idf) - Espressif IoT Development Framework
-- [ESP-SR](https://github.com/espressif/esp-sr) - Speech Recognition Framework
-- [3D Speaker](https://github.com/modelscope/3D-Speaker) - Speaker Recognition
-
-### Cộng Đồng
-- Cảm ơn tất cả các thành viên trong nhóm Zalo và Facebook
-- Cảm ơn những người đã đóng góp code và ý tưởng
-
----
-
-## 📞 Liên Hệ
-
-- 📱 **Zalo Group**: [https://zalo.me/g/fsyuiz890](https://zalo.me/g/fsyuiz890)
-- 📘 **Facebook Group**: [https://www.facebook.com/share/1BhraxqFBb/](https://www.facebook.com/share/1BhraxqFBb/)
-- 💻 **GitHub Issues**: [Tạo issue mới](https://github.com/TienHuyIoT/xiaozhi-esp32_vietnam/issues)
+Dự án gốc: [xiaozhi-esp32](https://github.com/78/xiaozhi-esp32) bởi Xiage.
 
 ---
 
 <div align="center">
 
-**Made with ❤️ by Vietnam AI-IoT Community**
-
-⭐ Nếu project này hữu ích, hãy cho chúng tôi một star nhé! ⭐
+**GlobyPro Firmware** · Phát triển bởi **Globy AI** · Phiên bản hiện tại: **2.1.6**
 
 </div>
